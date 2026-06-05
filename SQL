@@ -1,0 +1,82 @@
+CREATE TABLE student_depression (
+    gender VARCHAR(10),
+    age INT,
+    academic_pressure FLOAT,
+    study_satisfaction FLOAT,
+    sleep_duration VARCHAR(20),
+    dietary_habits VARCHAR(20),
+    suicidal_thoughts VARCHAR(5),
+    study_hours INT,
+    financial_stress INT,
+    family_history VARCHAR(5),
+    depression VARCHAR(5)
+);
+
+SELECT * FROM student_depression LIMIT 10;
+
+-- Check what values exist
+SELECT DISTINCT gender FROM student_depression;
+
+-- Standardize to proper case
+UPDATE student_depression
+SET gender = 'Male'   WHERE LOWER(gender) = 'male';
+
+UPDATE student_depression
+SET gender = 'Female' WHERE LOWER(gender) = 'female';
+
+-- Add the new column
+ALTER TABLE student_depression
+ADD COLUMN age_group VARCHAR(20);
+
+-- Populate it
+UPDATE student_depression
+SET age_group = CASE
+    WHEN age BETWEEN 18 AND 21 THEN '18-21'
+    WHEN age BETWEEN 22 AND 25 THEN '22-25'
+    WHEN age BETWEEN 26 AND 30 THEN '26-30'
+    WHEN age > 30              THEN '30+'
+    ELSE 'Unknown'
+END;
+
+-- Verify
+SELECT age, age_group FROM student_depression LIMIT 20;
+
+-- Sleep Duration distribution
+SELECT sleep_duration, COUNT(*) AS count FROM student_depression
+GROUP BY sleep_duration ORDER BY count DESC;
+
+-- Dietary Habits
+SELECT dietary_habits, COUNT(*) FROM student_depression
+GROUP BY dietary_habits;
+
+-- Suicidal Thoughts
+SELECT suicidal_thoughts, COUNT(*) FROM student_depression
+GROUP BY suicidal_thoughts;
+
+-- Financial Stress levels
+SELECT financial_stress, COUNT(*) FROM student_depression
+GROUP BY financial_stress ORDER BY financial_stress;
+
+-- Family History
+SELECT family_history, COUNT(*) FROM student_depression
+GROUP BY family_history;
+
+-- Add a serial ID / index column
+ALTER TABLE student_depression
+ADD COLUMN id SERIAL PRIMARY KEY;
+
+-- Convert depression column to 0/1 integer (better for Tableau)
+ALTER TABLE student_depression
+ADD COLUMN depression_flag INT;
+
+UPDATE student_depression
+SET depression_flag = CASE
+    WHEN LOWER(depression) = 'yes' THEN 1
+    ELSE 0
+END;
+
+-- Verify
+SELECT depression, depression_flag, COUNT(*) FROM student_depression
+GROUP BY depression, depression_flag;
+ALTER TABLE student_depression ADD COLUMN age_group VARCHAR(20);
+
